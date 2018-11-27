@@ -1,0 +1,116 @@
+----------------------------------------------------
+
+JSX：
+1.增强型JS语法——HTML代码直接放JS里
+2.babel
+
+注意：
+1.有且仅有一个父元素
+2.模板字符串
+  var oDiv=<div>{aaa}</div>;
+
+最强：
+1.组件
+2.状态
+
+----------------------------------------------------
+
+IndexPage
+
+<Header/>
+  <IndexContent/>
+<Footer/>
+
+----------------------------------------------------
+
+1.定义组件——组件==class
+  class 名字 extends React.Component{
+    render(){
+      return <span>111</span>;
+    }
+  }
+
+2.使用组件
+  就跟标签一样用
+  ReactDOM.render(
+    <span>111</span>,
+    oDiv
+  );
+
+  ReactDOM.render(
+    <Comp/>,
+    oDiv
+  );
+
+----------------------------------------------------
+
+属性——定死
+状态——变的
+
+----------------------------------------------------
+
+1.状态是活的
+  constructor里面——this.state={};
+  方法里面——this.setState({});
+
+2.事件大小写不能乱
+  onChange
+  onClick
+  ...
+
+3.绑定事件
+  onChange={fn}                   fn是方法，不是函数
+  onChange={this.fn}              不对，需要bind
+  onChange={this.fn.bind(this)}   OK
+
+4.用constructor的时候，必须用super
+
+----------------------------------------------------
+
+Angular霸道——原生定时器、jQuery
+react温柔——可以跟原生、jQuery配合起来
+
+----------------------------------------------------
+
+组件——生存周期
+
+componentWillMount()        创建之前
+componentDidMount()         创建之后
+
+componentWillUpdate()       更新之前
+componentDidUpdate()        更新之后
+
+componentWillUnmount()      卸载之前
+  没有componentDidUnmount
+
+componentWillReceiveProps() 组件参数更新
+
+----------------------------------------------------
+
+重用组件
+
+----------------------------------------------------
+
+错的：
+<ul>
+  <Item/>
+  <Item/>
+  <Item/>
+  <Item/>
+</ul>
+
+对的：
+arr.push(<Item/>);
+arr.push(<Item/>);
+arr.push(<Item/>);
+arr.push(<Item/>);
+...
+
+<ul>
+  {arr}
+</ul>
+
+
+
+
+----------------------------------------------------

@@ -1,0 +1,340 @@
+---搭建一个React项目---
+
+npm init创建项目: 
+npm init
+
+安装webpack:
+npm install webpack --save-dev
+
+新建webpack配置文件:
+// webpack.base.conf.js 文件
+const path = require('path');
+const DIST_PATH = path.resolve(__dirname, '../dist');
+module.exports = {
+        entry: {
+            app: './app/index.js'
+        },
+        output: {
+            filename: "js/bundle.js",
+            path: DIST_PATH
+        }
+};
+
+使用merge的方式来组织webpack基础配置和不同环境的配置:
+-先安装webpack-merge：  
+npm install --save-dev webpack-merge
+-在build文件夹中再添加一个js文件，命名为 webpack.prod.conf.js:
+// webpack.prod.conf.js 文件
+const merge = require('webpack-merge');
+const baseWebpackConfig = require('./webpack.base.conf');
+module.exports = merge(baseWebpackConfig, {
+    mode: 'production'
+});
+
+在根目录下创建app目录，然后创建index.js文件：
+var element =document.getElementById('root');
+element.innerHTML = 'hello, world!';
+-在根目录创建一个public文件夹，然后新建一个index.html文件
+// index.html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <title>从零开始搭建react工程</title>
+  </head>
+  <body>
+        <div id="root"></div>
+        <script src="../dist/js/bundle.js"></script>
+  </body>
+</html>
+
+安装webpack-cli：
+-webpack 4.0 版本之后的webpack，已经将webpack命令工具迁移到webpack-cli模块了,需要安装 webpack-cli
+npm install --save-dev webpack-cli
+
+package.json文件 scripts属性配置一个build命令:
+-其值为：webpack --config build/webpack.prod.conf.js，以下是scripts的相关代码
+// package.json
+"scripts": {
+    "build": "webpack --config build/webpack.prod.conf.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+},
+
+安装React:
+npm install --save react react-dom
+-修改app目录下的index.js的代码
+import React from "react";
+import ReactDom from "react-dom";
+
+ReactDom.render(
+    <h1>hello, world!</h1>,
+    document.getElementById("root")
+);
+-注意 import 属于ES6规范，因此需要转译ES2015+的语法，安装并配置 babel 以及相关依赖
+npm install --save-dev babel-loader babel-core babel-preset-env babel-preset-react
+-根目录创建.babelrc文件，配置presets.
+{
+  "presets": [
+    [
+      "env",
+      {
+        "targets": {
+          "browsers": [
+            "> 1%",
+            "last 5 versions",
+            "ie >= 8"
+          ]
+        }
+      }
+    ],
+    "react"
+  ]
+}
+-修改webpack.base.conf.js文件
+// webpack.base.conf.js
+const path = require('path');
+const APP_PATH = path.resolve(__dirname, '../app');
+const DIST_PATH = path.resolve(__dirname, '../dist');
+module.exports = {
+    entry: {
+        app: './app/index.js'
+    },    
+    output: {
+        filename: 'js/bundle.js',
+        path: DIST_PATH
+    },
+    module: {
+        rules: [
+            {
+                test: /\.js?$/,
+                use: "babel-loader",
+                include: APP_PATH
+            }
+        ]
+    }
+};
+运行 npm run build
+
+添加插件:
+-public下的index.html本该自动添加到dist目录，并且引用资源自动加载到该文件，通过html-webpack-plugin实现这一步
+npm install html-webpack-plugin --save-dev
+-webpack.prod.conf.js中配置plugins属性
+const merge = require('webpack-merge');
+const baseWebpackConfig = require('./webpack.base.conf.js');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+module.exports = merge(baseWebpackConfig, {
+    mode: 'production',
+    plugins: [
+        new HtmlWebpackPlugin({
+            template: 'public/index.html',
+            inject: 'body',
+            minify: {
+                removeComments: true,
+                collapseWhitespace: true,
+                removeAttributeQuotes: true
+            },
+        })
+    ]
+});
+-删除 index.html 中手动引入的 script 标签
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>从零开始搭建react工程</title>
+</head>
+<body>
+    <div id="root"></div>
+</body>
+</html>
+
+生成的文件名添加Hash值，目的是解决缓存问题：
+修改webpack.prod.conf.js，mode: 'production', 增加以下代码
+// webpack.prod.conf.js
+output: {
+    filename: "js/[name].[chunkhash:16].js",
+},
+
+生成前需要清理之前项目生成的文件，因为由于文件名的改变如果不删除会一直增加
+安装插件 clean-webpack-plugin：
+npm install --save-dev clean-webpack-plugin
+-修改 webpack.prod.conf.js
+// webpack.prod.conf.js
+const merge = require('webpack-merge');
+const baseWebpackConfig = require('./webpack.base.conf.js');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+
+module.exports = merge(baseWebpackConfig, {
+    mode: 'production',
+    output: {
+        filename: "js/[name].[chunkhash:16].js",
+    },
+    plugins: [
+        new HtmlWebpackPlugin({
+            template: 'public/index.html',
+            inject: 'body',
+            minify: {
+                removeComments: true,
+                collapseWhitespace: true,
+                removeAttributeQuotes: true
+            },
+        }),
+        new CleanWebpackPlugin(['../dist'], { allowExternal: true })
+    ]
+});
+
+公共代码与业务代码分离
+修改 webpack.base.conf.js 的 entry 入口属性，抽出框架代码
+entry: {
+      app: './app/index.js',
+      framework: ['react','react-dom'],
+},
+-修改webpack.prod.conf.js，增加以下代码，目的是分离框架代码和业务代码
+-虽然上面步骤抽出框架代码生成两个文件，但是app.js还是包含框架代码
+optimization: {
+        splitChunks: {
+            chunks: "all",
+            minChunks: 1,
+            minSize: 0,
+            cacheGroups: {
+                framework: {
+                    test: "framework",
+                    name: "framework",
+                    enforce: true
+                }
+            }
+        }
+    }
+-cacheGroups对象，定义了需要被抽离的模块
+-其中test属性是比较关键的一个值，他可以是一个字符串，也可以是正则表达式，还可以是函数。如果定义的是字符串，会匹配入口模块名称，会从其他模块中把包含这个模块的抽离出来
+-name是抽离后生成的名字，和入口文件模块名称相同，这样抽离出来的新生成的framework模块会覆盖被抽离的framework模块
+
+整合 webpack-dev-server
+-开发环境开启服务监听文件改动实时更新最新内容
+npm install --save-dev webpack-dev-server
+-在build中添加webpack.dev.conf.js文件
+const path = require('path');
+const merge = require('webpack-merge');
+const baseWebpackConfig = require('./webpack.base.conf.js');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require('webpack');
+
+module.exports = merge(baseWebpackConfig, {
+    mode: 'development',
+    output: {
+        filename: "js/[name].[hash:16].js",
+    },
+    plugins: [
+        new HtmlWebpackPlugin({
+            template: 'public/index.html',
+            inject: 'body',
+            minify: {
+                html5: true
+            },
+            hash: false
+        }),
+        new webpack.HotModuleReplacementPlugin()
+    ],
+    devServer: {
+        port: '8080',
+        contentBase: path.join(__dirname, '../public'),
+        compress: true,
+        historyApiFallback: true,
+        hot: true,
+        https: false,
+        noInfo: true,
+        open: true,
+        proxy: {}
+    }
+});
+-在package.json scripts属性添加内容
+"dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
+
+安装react-hot-loader：
+1：npm install --save-dev react-hot-loader
+2：webpack entry 添加：
+main: [
+    'react-hot-loader/patch',
+],
+3：在 .babelrc 里添加 plugin
+{
+    "presets": ['es2015', 'react'],
+    "plugins": ["react-hot-loader/babel"]   //设置这里
+}
+4：最后这个操作就是在页面的主入口，比如我的是 main.js 添加些代码
+import { AppContainer } from 'react-hot-loader'; //设置这里
+// Hot Module Replacement API 
+if (module.hot) {
+    module.hot.accept('./greeter', () => {
+        render(require('./greeter').default)
+    })
+}
+
+独立导出 css 文件
+-安装css相关依赖：
+npm install extract-text-webpack-plugin
+npm install style-loader css-loader postcss-loader autoprefixer --save-dev
+-webpack.base.conf.js 文件修改:
+// webpack.base.conf.js
+{
+    test: /\.css$/,
+    use: [
+        {
+          loader: "style-loader" //在html中插入<style>标签
+         },
+         {
+             loader: "css-loader",//获取引用资源，如@import,url()
+         },
+         {
+              loader: "postcss-loader", //自动加前缀
+              options: {
+                    plugins:[
+                       require('autoprefixer')({
+                           browsers:['last 5 version']
+                       })
+                  ]
+              }
+        }
+     ]
+},
+
+图片和路径处理:
+npm i file-loader url-loader --save-dev
+-webpack.base.conf.js 文件修改
+// webpack.base.conf.js
+{
+    test: /\.(png|jpg|gif|woff|svg|eot|woff2|tff)$/,
+    use: 'url-loader?limit=8129', 
+    //注意后面那个limit的参数，当你图片大小小于这个限制的时候，会自动启用base64编码图片
+    exclude: /node_modules/
+}
+
+背景图片路径问题
+-由于css文件分离出来的原因，会导致在css文件夹下找images文件夹下的图片
+-解决办法 publicPath属性改为 '/'，以绝对路径的方式寻找资源
+// webpack.base.conf.js
+{
+    test:/\.(png|jpg|gif)$/,
+    use:[{
+        loader:'url-loader',
+        options: {
+              // outputPath:'../',//输出**文件夹
+              publicPath: '/',
+              name: "images/[name].[ext]",
+              limit:500  //是把小于500B的文件打成Base64的格式，写入JS
+         }
+      }]
+},
+
+设置快捷路径
+// webpack.base.conf.js
+resolve: {
+    alias: {
+      "@": require('path').resolve(__dirname, '../app')
+    }
+  }
+
+
+
