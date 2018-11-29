@@ -1,13 +1,31 @@
 import React from "react";
 import ReactDom from "react-dom";
 import registerServiceWorker from './registerServiceWorker';
-import { AppContainer } from 'react-hot-loader';
+import { createStore } from 'redux'
+import { Provider } from 'react-redux';
+//
+import Page from '@/Page';
+
+// Reducer
+function unfold(state = { collapsed: true }, action) {
+  const collapsed = state.collapsed
+  switch (action.type) {
+    case 'toggle':
+      return { collapsed: !collapsed }
+    default:
+      return state
+  }
+}
+
+// Store
+const store = createStore(unfold)
+
+console.log('init:', store.getState())
 
 ReactDom.render(
-  <AppContainer>
-    <h1>hello, wor112131</h1>
-  </AppContainer>,
-  document.getElementById("root")
+  <Provider store={store}>
+    <Page/>
+  </Provider>, document.getElementById("root")
 );
 
 // Hot Module Replacement API 
