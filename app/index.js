@@ -5,20 +5,7 @@ import { createStore } from 'redux'
 import { Provider } from 'react-redux';
 //
 import Page from '@/Page';
-
-// Reducer
-function unfold(state = { collapsed: true }, action) {
-  const collapsed = state.collapsed
-  switch (action.type) {
-    case 'toggle':
-      return { collapsed: !collapsed }
-    default:
-      return state
-  }
-}
-
-// Store
-const store = createStore(unfold)
+import store from '@/store'
 
 console.log('init:', store.getState())
 

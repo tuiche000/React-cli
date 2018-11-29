@@ -8,6 +8,7 @@ module.exports = merge(baseWebpackConfig, {
     mode: 'development',
     output: {
         filename: "js/[name].[hash:16].js",
+        publicPath: '/'
     },
     plugins: [
         new HtmlWebpackPlugin({

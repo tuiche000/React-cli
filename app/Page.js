@@ -7,7 +7,7 @@ import NotFound from '@/NotFound';
 export default () => (
   <BrowserRouter>
     <Switch>
-      <Route exact path="/" render={() => <Redirect to="app" push />} />
+      <Route exact path="/" render={() => <Redirect to="app/home" push />} />
       <Route path="/app" component={App} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

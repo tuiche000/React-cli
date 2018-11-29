@@ -39,6 +39,7 @@
     "webpack-merge": "^4.1.4"
   },
   "dependencies": {
+    "bizcharts": "^3.4.1",
     "react": "^16.6.3",
     "react-dom": "^16.6.3"
   }
