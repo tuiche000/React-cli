@@ -24,7 +24,6 @@ export default () => {
                 <Route exact path={sub.key} component={PageComponents[sub.component]} key={sub.key} />
               ))
             })
-            console.log(ROUTEES)
             return ROUTEES
           }
         })

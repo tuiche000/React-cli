@@ -6,8 +6,10 @@ import { Provider } from 'react-redux';
 //
 import Page from '@/Page';
 import store from '@/store'
+import axios from './axios'
 
 console.log('init:', store.getState())
+global.$axios = axios
 
 ReactDom.render(
   <Provider store={store}>
