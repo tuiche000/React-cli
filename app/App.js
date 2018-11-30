@@ -1,27 +1,16 @@
 import React from "react";
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types'
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 //
 import '@/app.css';
-import { Layout, Menu, Icon } from 'antd';
+import { Layout, Menu, Icon, Breadcrumb, Dropdown } from 'antd';
 import { unfoldAction } from '@/store/action';
 import Routes from './routes';
 import RoutesConfig from './routes/config';
 
 const SubMenu = Menu.SubMenu;
 const { Header, Sider, Content } = Layout;
-
-const mapStateToProps = state => ({
-  collapsed: state.collapsed
-})
-
-const mapDispatchToProps = dispatch => ({
-  onUnfoldToggle: () => dispatch(unfoldAction({
-    a: 12,
-    b: '5'
-  }))
-})
 
 class LayoutComponent extends React.Component {
 
@@ -39,6 +28,39 @@ class LayoutComponent extends React.Component {
     const { collapsed, onUnfoldToggle } = this.props
     const { store } = this.context;
     const state = store.getState();
+    // 用户下拉菜单
+    const menu = (
+      <Menu>
+        <Menu.Item>
+          <a target="_blank" rel="noopener noreferrer" href="http://www.alipay.com/">修改密码</a>
+        </Menu.Item>
+        <Menu.Item>
+          <a target="_blank" rel="noopener noreferrer" href="http://www.taobao.com/">基本信息</a>
+        </Menu.Item>
+        <Menu.Divider />
+        <Menu.Item>
+          <a target="_blank" rel="noopener noreferrer" href="http://www.tmall.com/">退出登录</a>
+        </Menu.Item>
+      </Menu>
+    );
+    // 面包屑数据
+    const menus = RoutesConfig.menus;
+    const breadcrumbNameMap = {}
+    menus.map(menu => {
+      breadcrumbNameMap[menu.key] = menu.title
+      let next_params = menu.subs
+      let next = (next_params) => {
+        if (next_params) {
+          next_params.map(sub => {
+            breadcrumbNameMap[sub.key] = sub.title
+          })
+          console.log(next_params)
+        }
+      }
+      next(next_params)
+    })
+    console.log(menus)
+    console.log(breadcrumbNameMap)
     return (
       <Layout id="components-layout-demo-custom-trigger">
         <Sider
@@ -87,6 +109,17 @@ class LayoutComponent extends React.Component {
               type={collapsed ? 'menu-unfold' : 'menu-fold'}
               onClick={onUnfoldToggle}
             />
+            <Breadcrumb>
+              <Breadcrumb.Item>Home</Breadcrumb.Item>
+              <Breadcrumb.Item><a href="">Application Center</a></Breadcrumb.Item>
+              <Breadcrumb.Item><a href="">Application List</a></Breadcrumb.Item>
+              <Breadcrumb.Item>An Application</Breadcrumb.Item>
+            </Breadcrumb>
+            <Dropdown overlay={menu} placement="bottomRight">
+              <a className="ant-dropdown-link" href="#">
+                苏小小 <Icon type="down" />
+              </a>
+            </Dropdown>
           </Header>
           <Content style={{ margin: '24px 16px', padding: 24, background: '#fff', minHeight: 280 }}>
             <Routes />
@@ -97,6 +130,17 @@ class LayoutComponent extends React.Component {
   }
 
 }
+
+const mapStateToProps = state => ({
+  collapsed: state.collapsed
+})
+
+const mapDispatchToProps = dispatch => ({
+  onUnfoldToggle: () => dispatch(unfoldAction({   //传个测试数据试试看传参
+    a: 12,
+    b: '5'
+  }))
+})
 
 const App = connect(
   mapStateToProps,

@@ -30,6 +30,8 @@ module.exports = merge(baseWebpackConfig, {
         https: false,
         noInfo: true,
         open: true,
+        quiet: true,
+        clientLogLevel: "none",
         proxy: {}
     }
 });
