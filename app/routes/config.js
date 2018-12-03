@@ -2,9 +2,27 @@ export default {
   menus: [    // 菜单相关路由
     { key: '/app/home', title: '首页', icon: 'home', component: 'Home' },
     {
-      key: '/app/test', title: 'test', icon: 'setting',
+      key: '/test', title: 'test', icon: 'setting',
       subs: [
-        { key: '/app/test/index', title: 'test', component: 'Login' },
+        {
+          key: '/app/test',
+          title: 'test',
+          component: 'Test',
+          subs: [
+            { 
+              key: '/app/test/threePage',
+              title: '3级子分类',
+              component: 'Test',
+              subs: [
+                { 
+                  key: '/app/test/threePage/fourPage',
+                  title: '4级子分类',
+                  component: 'Test',
+                }
+              ]
+            }
+          ]
+        },
         {
           key: '/app/test/dashboard',
           title: '图表',

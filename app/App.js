@@ -43,24 +43,40 @@ class LayoutComponent extends React.Component {
         </Menu.Item>
       </Menu>
     );
-    // 面包屑数据
+    // 面包屑数据start
     const menus = RoutesConfig.menus;
     const breadcrumbNameMap = {}
     menus.map(menu => {
-      breadcrumbNameMap[menu.key] = menu.title
-      let next_params = menu.subs
-      let next = (next_params) => {
-        if (next_params) {
-          next_params.map(sub => {
-            breadcrumbNameMap[sub.key] = sub.title
+      breadcrumbNameMap[menu.key] = menu
+      let next = (menu) => {
+        if (menu.subs) {
+          menu.subs.map(sub => {
+            breadcrumbNameMap[sub.key] = sub
+            next(sub)
           })
-          console.log(next_params)
         }
       }
-      next(next_params)
+      next(menu)
     })
-    console.log(menus)
-    console.log(breadcrumbNameMap)
+    let { pathname } = window.location
+    const pathSnippets = pathname.split('/').filter(i => i);
+    const extraBreadcrumbItems = pathSnippets.map((_, index) => {
+      if (index == 0) return
+      const url = `/${pathSnippets.slice(0, index + 1).join('/')}`;
+      return (
+        <Breadcrumb.Item key={url}>
+          <Link to={url}>
+            {breadcrumbNameMap[url].title}
+          </Link>
+        </Breadcrumb.Item>
+      );
+    });
+    const breadcrumbItems = [(
+      <Breadcrumb.Item key="/app/home">
+        <Link to="/app/home">Home</Link>
+      </Breadcrumb.Item>
+    )].concat(extraBreadcrumbItems);
+    // 面包屑数据end
     return (
       <Layout id="components-layout-demo-custom-trigger">
         <Sider
@@ -110,10 +126,7 @@ class LayoutComponent extends React.Component {
               onClick={onUnfoldToggle}
             />
             <Breadcrumb>
-              <Breadcrumb.Item>Home</Breadcrumb.Item>
-              <Breadcrumb.Item><a href="">Application Center</a></Breadcrumb.Item>
-              <Breadcrumb.Item><a href="">Application List</a></Breadcrumb.Item>
-              <Breadcrumb.Item>An Application</Breadcrumb.Item>
+              {breadcrumbItems}
             </Breadcrumb>
             <Dropdown overlay={menu} placement="bottomRight">
               <a className="ant-dropdown-link" href="#">
