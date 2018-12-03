@@ -14,6 +14,9 @@ const SubMenu = Menu.SubMenu;
 const { Header, Sider, Content } = Layout;
 
 class LayoutComponent extends React.Component {
+  constructor(props) {
+    super(props)
+  }
 
   // 声明需要使用的Context属性
   static contextTypes = {
@@ -65,13 +68,30 @@ class LayoutComponent extends React.Component {
       if (index == 0 || _ == "home") return
       const url = `/${pathSnippets.slice(0, index + 1).join('/')}`;
       return (
-        <Breadcrumb.Item key={url}>
-          <Link to={url}>
+        <Breadcrumb.Item key={breadcrumbNameMap[url].key} disable={breadcrumbNameMap[url].disable || null}>
+          <Link to={breadcrumbNameMap[url].key}>
             {breadcrumbNameMap[url].title}
           </Link>
         </Breadcrumb.Item>
       );
     });
+
+    // 判断如果是3级分类或更高的时候显示2级分类
+    let defaultSelectedKeys
+    if (pathSnippets[pathSnippets.length - 1] != 'home') { // 如果当前路由不是home
+      let currentBreadcrumbItems = extraBreadcrumbItems[extraBreadcrumbItems.length - 1]
+      if (currentBreadcrumbItems.props.disable) {
+        let newpathSnippets = pathSnippets.toString()
+        newpathSnippets = newpathSnippets.split(',').splice(0, 2).join('/')
+        defaultSelectedKeys = '/' + newpathSnippets
+      } else {
+        defaultSelectedKeys = pathname
+      }
+    } else { // 如果在home路由
+      defaultSelectedKeys = pathname
+    }
+
+    //
     const breadcrumbItems = [(
       <Breadcrumb.Item key="/app/home">
         <Link to="/app/home">Home</Link>
@@ -86,7 +106,7 @@ class LayoutComponent extends React.Component {
           collapsed={collapsed}
         >
           <div className="logo" />
-          <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
+          <Menu theme="dark" mode="inline" defaultSelectedKeys={[defaultSelectedKeys]} defaultOpenKeys={[pathSnippets[1]]}>
             {
               RoutesConfig.menus.map(item => {
                 if (item.subs) {

@@ -13,11 +13,13 @@ export default {
               key: '/app/test/threePage',
               title: '3级子分类',
               component: 'Test',
+              disable: 'true',
               subs: [
                 { 
                   key: '/app/test/threePage/fourPage',
                   title: '4级子分类',
                   component: 'Test',
+                  disable: 'true'
                 }
               ]
             }
