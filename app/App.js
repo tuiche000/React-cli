@@ -1,13 +1,14 @@
 import React from "react";
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types'
-import { Link, withRouter } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 //
 import '@/app.css';
 import { Layout, Menu, Icon, Breadcrumb, Dropdown } from 'antd';
 import { unfoldAction } from '@/store/action';
 import Routes from './routes';
 import RoutesConfig from './routes/config';
+import { debug } from "util";
 
 const SubMenu = Menu.SubMenu;
 const { Header, Sider, Content } = Layout;
@@ -61,7 +62,7 @@ class LayoutComponent extends React.Component {
     let { pathname } = window.location
     const pathSnippets = pathname.split('/').filter(i => i);
     const extraBreadcrumbItems = pathSnippets.map((_, index) => {
-      if (index == 0) return
+      if (index == 0 || _ == "home") return
       const url = `/${pathSnippets.slice(0, index + 1).join('/')}`;
       return (
         <Breadcrumb.Item key={url}>

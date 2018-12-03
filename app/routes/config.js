@@ -2,7 +2,7 @@ export default {
   menus: [    // 菜单相关路由
     { key: '/app/home', title: '首页', icon: 'home', component: 'Home' },
     {
-      key: '/test', title: 'test', icon: 'setting',
+      key: 'test', title: 'test', icon: 'setting',
       subs: [
         {
           key: '/app/test',
