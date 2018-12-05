@@ -1,13 +1,20 @@
 import React from "react";
 import ReactDom from "react-dom";
 import registerServiceWorker from './registerServiceWorker';
-import { AppContainer } from 'react-hot-loader';
+import { createStore } from 'redux'
+import { Provider } from 'react-redux';
+//
+import Page from '@/Page';
+import store from '@/store'
+import axios from './axios'
+
+console.log('init:', store.getState())
+global.$axios = axios
 
 ReactDom.render(
-  <AppContainer>
-    <h1>hello, 123</h1>
-  </AppContainer>,
-  document.getElementById("root")
+  <Provider store={store}>
+    <Page/>
+  </Provider>, document.getElementById("root")
 );
 
 // Hot Module Replacement API 

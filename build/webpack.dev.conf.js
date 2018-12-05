@@ -8,6 +8,7 @@ module.exports = merge(baseWebpackConfig, {
     mode: 'development',
     output: {
         filename: "js/[name].[hash:16].js",
+        publicPath: '/'
     },
     plugins: [
         new HtmlWebpackPlugin({
@@ -29,6 +30,8 @@ module.exports = merge(baseWebpackConfig, {
         https: false,
         noInfo: true,
         open: true,
+        quiet: true,
+        clientLogLevel: "none",
         proxy: {}
     }
 });
